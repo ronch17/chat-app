@@ -11,20 +11,32 @@ type User = {
 
 type SelectedUser = {
   _id: string;
+  fullName: string;
+  profilePic?: string;
+};
+
+type MessagesData = {
+  _id: string;
+  text?: string;
+  image?: string;
+  createdAt: string;
+  receiverId: string;
+  senderId: string;
 };
 
 type ChatStore = {
-  messages: string[];
+  messages: MessagesData[];
   users: User[];
   selectedUser: SelectedUser | null;
   isUserLoading: boolean;
   isMessagesLoading: boolean;
   getUsers: () => Promise<void>;
   getMessages: () => Promise<void>;
-  setSelectedUser: (selectedUser: string) => void;
+  sendMessage: (messageData: FormData) => Promise<void>;
+  setSelectedUser: (selectedUser: string | null) => void;
 };
 
-export const useChatStore = create<ChatStore>((set) => ({
+export const useChatStore = create<ChatStore>((set, get) => ({
   messages: [],
   users: [],
   selectedUser: null,
@@ -52,6 +64,23 @@ export const useChatStore = create<ChatStore>((set) => ({
       toast.error(error.response.data.message);
     } finally {
       set({ isMessagesLoading: false });
+    }
+  },
+
+  sendMessage: async (messageData) => {
+    const { selectedUser, messages } = get();
+    console.log(messages);
+    try {
+      const res = await axiosInstance.post(
+        `/messages/send/${selectedUser?._id}`,
+        messageData,
+        {
+          headers: { "Content-Type": "multipart/form-data" },
+        },
+      );
+      set({ messages: [...messages, res.data] });
+    } catch (error) {
+      toast.error(error.response.data.message);
     }
   },
 

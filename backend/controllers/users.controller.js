@@ -16,10 +16,14 @@ exports.sendMessage = exports.getMessage = exports.getUsersForSidebar = void 0;
 const user_model_1 = __importDefault(require("../models/user.model"));
 const message_model_1 = __importDefault(require("../models/message.model"));
 const cloudinary_1 = __importDefault(require("../lib/cloudinary"));
+const multer_1 = __importDefault(require("multer"));
+const upload = (0, multer_1.default)({ storage: multer_1.default.memoryStorage() });
 const getUsersForSidebar = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         const loggedInUserId = req.user._id;
-        const filteredUsers = yield user_model_1.default.find({ _id: { $ne: loggedInUserId } }).select("-password");
+        const filteredUsers = yield user_model_1.default.find({
+            _id: { $ne: loggedInUserId },
+        }).select("-password");
         res.status(200).json(filteredUsers);
     }
     catch (error) {
@@ -32,7 +36,12 @@ const getMessage = (req, res) => __awaiter(void 0, void 0, void 0, function* () 
     try {
         const { id } = req.params;
         const myId = req.user._id;
-        const messages = yield message_model_1.default.find({ $or: [{ senderId: myId, receiverId: id }, { senderId: id, receiverId: myId }] });
+        const messages = yield message_model_1.default.find({
+            $or: [
+                { senderId: myId, receiverId: id },
+                { senderId: id, receiverId: myId },
+            ],
+        });
         res.status(200).json(messages);
     }
     catch (error) {
@@ -43,25 +52,33 @@ const getMessage = (req, res) => __awaiter(void 0, void 0, void 0, function* () 
 exports.getMessage = getMessage;
 const sendMessage = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
-        const { text, image } = req.body;
+        const { text } = req.body;
         const receiverId = req.params.id;
         const senderId = req.user._id;
-        let imageUrl;
-        if (image) {
-            const uploadResponse = yield cloudinary_1.default.uploader.upload(image);
-            imageUrl = uploadResponse.secure_url;
+        let imageUrl = null;
+        if (req.file) {
+            const uploadResult = yield new Promise((resolve, reject) => {
+                const uploadStream = cloudinary_1.default.uploader.upload_stream({ resource_type: "image" }, (error, result) => {
+                    if (error)
+                        reject(error);
+                    else
+                        resolve(result);
+                });
+                uploadStream.end(req.file.buffer);
+            });
+            imageUrl = uploadResult.secure_url;
         }
         const newMessage = new message_model_1.default({
             text,
             image: imageUrl,
             senderId,
-            receiverId
+            receiverId,
         });
         yield newMessage.save();
         res.status(201).json(newMessage);
     }
     catch (error) {
-        console.error("Error in sendMessage", error);
+        console.error("Error in sendMessage:", error);
         res.status(500).json({ error: "Internal server error" });
     }
 });
