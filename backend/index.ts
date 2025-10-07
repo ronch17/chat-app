@@ -7,9 +7,12 @@ import cookieParser from "cookie-parser";
 import cors from "cors";
 import { app, server } from "./lib/socket";
 
+import path from "path";
+
 dotenv.config();
 
 const PORT = process.env.PORT;
+const __dirname = path.resolve();
 
 app.use(
   cors({
@@ -23,6 +26,14 @@ app.use(cookieParser());
 
 app.use("/api/auth", authRouter);
 app.use("/api/messages", messageRoutes); // ודא שהנתיב והמופע תקינים
+
+if (process.env.NODE_ENV === "production") {
+  app.use(express.static(path.join(__dirname, "../frontend/dist")));
+
+  app.get("*", (req, res) => {
+    res.sendFile(path.join(__dirname, "..frontend", "dist", "index.html"));
+  });
+}
 
 server.listen(PORT, () => {
   console.log("server is running at " + PORT);
