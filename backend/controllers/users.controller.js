@@ -17,6 +17,7 @@ const user_model_1 = __importDefault(require("../models/user.model"));
 const message_model_1 = __importDefault(require("../models/message.model"));
 const cloudinary_1 = __importDefault(require("../lib/cloudinary"));
 const multer_1 = __importDefault(require("multer"));
+const socket_1 = require("../lib/socket");
 const upload = (0, multer_1.default)({ storage: multer_1.default.memoryStorage() });
 const getUsersForSidebar = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
@@ -75,6 +76,10 @@ const sendMessage = (req, res) => __awaiter(void 0, void 0, void 0, function* ()
             receiverId,
         });
         yield newMessage.save();
+        const receiverSocketId = (0, socket_1.getReceiverSocketId)(receiverId);
+        if (receiverSocketId) {
+            socket_1.io.to(receiverSocketId).emit("newMessage", newMessage);
+        }
         res.status(201).json(newMessage);
     }
     catch (error) {

@@ -2,6 +2,7 @@ import User from "../models/user.model";
 import Message from "../models/message.model";
 import cloudinary from "../lib/cloudinary";
 import multer from "multer";
+import { getReceiverSocketId, io } from "../lib/socket";
 const upload = multer({ storage: multer.memoryStorage() });
 
 export const getUsersForSidebar = async (req, res) => {
@@ -67,6 +68,11 @@ export const sendMessage = async (req, res) => {
     });
 
     await newMessage.save();
+
+    const receiverSocketId = getReceiverSocketId(receiverId);
+    if (receiverSocketId) {
+      io.to(receiverSocketId).emit("newMessage", newMessage);
+    }
 
     res.status(201).json(newMessage);
   } catch (error) {
