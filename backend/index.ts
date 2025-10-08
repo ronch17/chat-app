@@ -1,17 +1,16 @@
 import express from "express";
-import authRouter from "./routes/auth.route";
-import messageRoutes from "./routes/message.route";
+import authRouter from "./routes/auth.route.js";
+import messageRoutes from "./routes/message.route.js";
 import dotenv from "dotenv";
-import { connectDB } from "./lib/db";
+import { connectDB } from "./lib/db.js";
 import cookieParser from "cookie-parser";
 import cors from "cors";
-import { app, server } from "./lib/socket";
+import { app, server } from "./lib/socket.js";
 import path from "path";
 import { fileURLToPath } from "url";
 
 dotenv.config();
 
-// 🧭 הגדרה נכונה של __dirname ב־ESM
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
@@ -21,7 +20,7 @@ app.use(
   cors({
     origin:
       process.env.NODE_ENV === "production"
-        ? "https://chat-frontend.onrender.com" // לשים כאן את הדומיין של הפרונט שלך ב־Render
+        ? "https://chat-frontend.onrender.com"
         : "http://localhost:5173",
     credentials: true,
   }),

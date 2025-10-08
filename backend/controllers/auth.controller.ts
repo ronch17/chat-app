@@ -1,10 +1,10 @@
 import { Request, Response } from "express";
-import User from "../models/user.model";
+import User from "../models/user.model.js";
 import bcrypt from "bcryptjs";
-import { generateToken } from "../lib/utils";
-import cloudinary from "../lib/cloudinary";
+import { generateToken } from "../lib/utils.js";
+import cloudinary from "../lib/cloudinary.js";
 
-import UserDocument from "../models/user.model";
+import UserDocument from "../models/user.model.js";
 
 interface AuthenticatedRequest extends Request {
   user?: typeof UserDocument;

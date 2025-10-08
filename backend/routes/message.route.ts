@@ -1,10 +1,10 @@
 import express from "express";
-import { protectRoute } from "../middleware/auth.middleware";
+import { protectRoute } from "../middleware/auth.middleware.js";
 import {
   getMessage,
   getUsersForSidebar,
   sendMessage,
-} from "../controllers/users.controller";
+} from "../controllers/users.controller.js";
 
 import multer from "multer";
 const upload = multer({ storage: multer.memoryStorage() });

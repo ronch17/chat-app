@@ -1,8 +1,8 @@
-import User from "../models/user.model";
-import Message from "../models/message.model";
-import cloudinary from "../lib/cloudinary";
+import User from "../models/user.model.js";
+import Message from "../models/message.model.js";
+import cloudinary from "../lib/cloudinary.js";
 import multer from "multer";
-import { getReceiverSocketId, io } from "../lib/socket";
+import { getReceiverSocketId, io } from "../lib/socket.js";
 const upload = multer({ storage: multer.memoryStorage() });
 
 export const getUsersForSidebar = async (req, res) => {
