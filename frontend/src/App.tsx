@@ -19,8 +19,6 @@ function App() {
     checkAuth().then();
   }, [checkAuth]);
 
-  console.log(onlineUsers);
-
   if (isCheckingAuth) {
     return (
       <div className="flex items-center justify-center h-screen">
