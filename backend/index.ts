@@ -20,7 +20,7 @@ app.use(
   cors({
     origin:
       process.env.NODE_ENV === "production"
-        ? "https://chat-frontend.onrender.com"
+        ? "https://chat-app-n7ek.onrender.com"
         : "http://localhost:5173",
     credentials: true,
   }),
