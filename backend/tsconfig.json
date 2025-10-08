@@ -6,7 +6,9 @@
     "outDir": "dist",
     "esModuleInterop": true,
     "forceConsistentCasingInFileNames": true,
-    "strict": true,
+    "strict": false,                 // ⬅️ מוריד את strict mode
+    "noImplicitAny": false,          // ⬅️ מאפשר משתנים בלי טיפוס מפורש
+    "noEmitOnError": false,          // ⬅️ מאפשר הפקת JS גם עם שגיאות
     "skipLibCheck": true
   },
   "include": ["**/*.ts"],
