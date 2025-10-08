@@ -1,36 +1,31 @@
-"use strict";
-var __importDefault = (this && this.__importDefault) || function (mod) {
-    return (mod && mod.__esModule) ? mod : { "default": mod };
-};
-Object.defineProperty(exports, "__esModule", { value: true });
-const express_1 = __importDefault(require("express"));
-const auth_route_1 = __importDefault(require("./routes/auth.route"));
-const message_route_1 = __importDefault(require("./routes/message.route"));
-const dotenv_1 = __importDefault(require("dotenv"));
-const db_1 = require("./lib/db");
-const cookie_parser_1 = __importDefault(require("cookie-parser"));
-const cors_1 = __importDefault(require("cors"));
-const socket_1 = require("./lib/socket");
-const path_1 = __importDefault(require("path"));
-dotenv_1.default.config();
+import express from "express";
+import authRouter from "./routes/auth.route";
+import messageRoutes from "./routes/message.route";
+import dotenv from "dotenv";
+import { connectDB } from "./lib/db";
+import cookieParser from "cookie-parser";
+import cors from "cors";
+import { app, server } from "./lib/socket";
+import path from "path";
+dotenv.config();
 const PORT = process.env.PORT;
-const __dirname = path_1.default.resolve();
-socket_1.app.use((0, cors_1.default)({
+const __dirname = path.resolve();
+app.use(cors({
     origin: "http://localhost:5173",
     credentials: true,
 }));
-socket_1.app.use(express_1.default.json());
-socket_1.app.use((0, cookie_parser_1.default)());
-socket_1.app.use("/api/auth", auth_route_1.default);
-socket_1.app.use("/api/messages", message_route_1.default); // ודא שהנתיב והמופע תקינים
+app.use(express.json());
+app.use(cookieParser());
+app.use("/api/auth", authRouter);
+app.use("/api/messages", messageRoutes); // ודא שהנתיב והמופע תקינים
 if (process.env.NODE_ENV === "production") {
-    const frontendPath = path_1.default.join(__dirname, "../frontend/dist");
-    socket_1.app.use(express_1.default.static(frontendPath));
-    socket_1.app.get("*", (req, res) => {
-        res.sendFile(path_1.default.join(frontendPath, "index.html"));
+    const frontendPath = path.join(__dirname, "../frontend/dist");
+    app.use(express.static(frontendPath));
+    app.get("*", (req, res) => {
+        res.sendFile(path.join(frontendPath, "index.html"));
     });
 }
-socket_1.server.listen(PORT, () => {
+server.listen(PORT, () => {
     console.log("server is running at " + PORT);
-    (0, db_1.connectDB)();
+    connectDB();
 });

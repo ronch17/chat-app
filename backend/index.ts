@@ -6,17 +6,23 @@ import { connectDB } from "./lib/db";
 import cookieParser from "cookie-parser";
 import cors from "cors";
 import { app, server } from "./lib/socket";
-
 import path from "path";
+import { fileURLToPath } from "url";
 
 dotenv.config();
 
+// 🧭 הגדרה נכונה של __dirname ב־ESM
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+
 const PORT = process.env.PORT;
-const __dirname = path.resolve();
 
 app.use(
   cors({
-    origin: "http://localhost:5173",
+    origin:
+      process.env.NODE_ENV === "production"
+        ? "https://chat-frontend.onrender.com" // לשים כאן את הדומיין של הפרונט שלך ב־Render
+        : "http://localhost:5173",
     credentials: true,
   }),
 );
@@ -24,8 +30,9 @@ app.use(
 app.use(express.json());
 app.use(cookieParser());
 
+// ✅ Routes
 app.use("/api/auth", authRouter);
-app.use("/api/messages", messageRoutes); // ודא שהנתיב והמופע תקינים
+app.use("/api/messages", messageRoutes);
 
 if (process.env.NODE_ENV === "production") {
   const frontendPath = path.join(__dirname, "../frontend/dist");
@@ -37,6 +44,6 @@ if (process.env.NODE_ENV === "production") {
 }
 
 server.listen(PORT, () => {
-  console.log("server is running at " + PORT);
+  console.log(`🚀 Server running on port ${PORT}`);
   connectDB();
 });
