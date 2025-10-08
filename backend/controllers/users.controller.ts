@@ -46,16 +46,24 @@ export const sendMessage = async (req, res) => {
     let imageUrl = null;
 
     if (req.file) {
-      const uploadResult = await new Promise((resolve, reject) => {
-        const uploadStream = cloudinary.uploader.upload_stream(
-          { resource_type: "image" },
-          (error, result) => {
-            if (error) reject(error);
-            else resolve(result);
-          },
-        );
-        uploadStream.end(req.file.buffer);
-      });
+      interface CloudinaryUploadResult {
+        secure_url: string;
+        public_id: string;
+        [key: string]: any;
+      }
+
+      const uploadResult = await new Promise<CloudinaryUploadResult>(
+        (resolve, reject) => {
+          const uploadStream = cloudinary.uploader.upload_stream(
+            { resource_type: "image" },
+            (error, result) => {
+              if (error) reject(error);
+              else resolve(result as CloudinaryUploadResult);
+            },
+          );
+          uploadStream.end(req.file.buffer);
+        },
+      );
 
       imageUrl = uploadResult.secure_url;
     }

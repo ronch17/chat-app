@@ -11,6 +11,6 @@
     "noEmitOnError": false,          // ⬅️ מאפשר הפקת JS גם עם שגיאות
     "skipLibCheck": true
   },
-  "include": ["**/*.ts"],
+  "include": ["**/*.ts", "types"],
   "exclude": ["node_modules"]
 }

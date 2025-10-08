@@ -20,8 +20,17 @@ const userSocketMap: Record<string, string> = {};
 io.on("connection", (socket) => {
   console.log("A user connected", socket.id);
 
-  const userId = socket.handshake.query.userId;
-  if (typeof userId === "string") {
+  // הבטחת טיפוס – ייקח תמיד מחרוזת אחת בלבד
+  const queryUserId = socket.handshake.query.userId;
+  const userId =
+    Array.isArray(queryUserId) && queryUserId.length > 0
+      ? queryUserId[0]
+      : typeof queryUserId === "string"
+        ? queryUserId
+        : undefined;
+
+  // אם יש userId תקין – שמור אותו במפה
+  if (userId) {
     userSocketMap[userId] = socket.id;
   }
 
@@ -29,7 +38,11 @@ io.on("connection", (socket) => {
 
   socket.on("disconnect", () => {
     console.log("A user disconnected", socket.id);
-    delete userSocketMap[userId];
+
+    if (userId) {
+      delete userSocketMap[userId];
+    }
+
     io.emit("getOnlineUsers", Object.keys(userSocketMap));
   });
 });
